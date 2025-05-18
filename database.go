@@ -133,7 +133,7 @@ func updateRecord(tableName string, id string, fieldValues []string) error {
 }
 
 
-func deleteRecord(tableName string, id string) error {
+func removeRecord(tableName string, id string) error {
 	err := readTable(tableName)
 	if err != nil {
 		return err
