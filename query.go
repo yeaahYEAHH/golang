@@ -30,24 +30,36 @@ func parseQuery(query string) (string, string, []string, error) {
 	switch action {
 	case "DELETE":
 		if len(parts) < 2 {
-			return "", "", nil, fmt.Errorf("ожидалось имя таблицы для delete")
+			return "", "", nil, fmt.Errorf("ожидалось имя таблицы для %s", action)
 		}
 		table = parts[1]
 	case "CREATE":
 		if len(parts) < 3 {
-			return "", "", nil, fmt.Errorf("ожидалось имя таблицы и минимум одно поле для create")
+			return "", "", nil, fmt.Errorf("ожидалось имя таблицы и минимум одно поле для %s", action)
 		}
 		table = parts[1]
 		args = parts[2:]
-	case "SELECT_ALL":
+	case "SELECTALL":
 		if len(parts) < 2 {
-			return "", "", nil, fmt.Errorf("ожидалось имя таблицы для select_all")
+			return "", "", nil, fmt.Errorf("ожидалось имя таблицы для %s", action)
 		}
 		table = parts[1]
 		if len(parts) > 2 {
 			args = parts[2:]
 		}
-default:
+	case "SEARCH", "REMOVE":	
+		if len(parts) != 3{
+			return "", "", nil, fmt.Errorf("неправильное количество агрументов для %s", action)
+		}
+		table = parts[1]
+		args = parts[2:]
+	case "INSERT", "UPDATE":
+		if len(parts) < 3{
+			return "", "", nil, fmt.Errorf("неправильное количество агрументов для %s", action)
+		}
+		table = parts[1]
+		args = parts[2:]
+	default:
 		return "", "", nil, fmt.Errorf("неизвестная команда: %s", action)
 	}
 
@@ -74,7 +86,7 @@ func handleQuery(requestType string, table string, arguments []string) (string, 
 			return search, nil
 		}
 
-	case "SELECT_ALL":
+	case "SELECTALL":
 		if search, err := selectAll(table); 
 			err != nil {
 				return "", err
