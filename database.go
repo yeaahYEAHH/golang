@@ -9,7 +9,7 @@ import (
 )
 
 var data [][]string
-var ID map[int]bool
+var ID =  make(map[int]bool)
 
 func readTable(tableName string) error{ 	
 	var fileName string = fmt.Sprintf("%s.csv", tableName);
@@ -31,7 +31,7 @@ func readTable(tableName string) error{
 func writeTable(tableName string) error{
 	var fileName string = fmt.Sprintf("%s.csv", tableName);
 
-	file, err := os.OpenFile(fileName, os.O_RDWR, 0644)
+	file, err := os.OpenFile(fileName, os.O_TRUNC | os.O_RDWR, 0644)
 	if err != nil {
 		return fmt.Errorf("не существует таблицы %s \nДоп.: %w", tableName, err)
 	}
@@ -56,7 +56,7 @@ func createTable(tableName string, fieldNames []string) error {
 	}
 	defer file.Close()
 
-	data = append(data, fieldNames)
+	data = append(data, append([]string{"ID"}, fieldNames...))
 
 	if err = writeTable(tableName); 
 		err != nil{
@@ -73,6 +73,8 @@ func deleteTable(tableName string) error {
 		err != nil {
 			return fmt.Errorf("не удалось удалить таблицу %s\nДоп.:%w", tableName, err)
 	}
+
+	data = data[:0]
 	
 	return nil
 }
@@ -139,10 +141,9 @@ func removeRecord(tableName string, id string) error {
 		return err
 	}
 
-	for i := 0; i < len(data); i++ {
+	for i := 1; i < len(data); i++ {
 		if data[i][0] == id {
 			data = append(data[:i], data[i+1:]...)
-
 			if err := writeTable(tableName); err != nil {
 				return fmt.Errorf("не удалось сохранить изменения: %w", err)
 			}
