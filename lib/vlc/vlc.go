@@ -1,22 +1,13 @@
 package vlc
 
 import (
-	"fmt"
-	"strconv"
 	"strings"
 	"unicode"
-	"unicode/utf8"
+
+	"archivator/lib/vlc/chunk"
 )
 
 type encodingTable map[rune]string
-
-type BinaryChunk string
-type BinaryChunks []BinaryChunk
-
-type HexChunk string
-type HexChunks []HexChunk
-
-var chunkSize = 8
 
 func Encode(str string) string {
 	// prepare text: M -> !m
@@ -26,10 +17,27 @@ func Encode(str string) string {
 	binStr := encodeBin(str)
 
 	// split binary by chunks (8): bits to bytes -> 10010101 10010101 10010101
-	chunks := splitByChunks(binStr, chunkSize)
+	chunks := chunk.SplitByChunks(binStr)
 
 	// bytes to hex -> '20 30 3C'
-	return chunks.ToHex().toString("")
+	return chunks.ToHex().ToString()
+}
+
+func Decode(str string) string {
+	hexChunks := chunk.NewHexChunks(str)
+
+	// hexChunks -> binChunks
+	binChunks := hexChunks.ToBinary()
+
+	// binChunks -> binString
+	binString := binChunks.Join()
+
+	// build binTreeSearch
+
+	// decode binTreeSearch
+
+	// return build decode string
+	return ""
 }
 
 func prepareText(str string) string {
@@ -100,85 +108,4 @@ func getEncodingTable() encodingTable {
 		'x': "00000000001",
 		'z': "000000000000",
 	}
-}
-
-func splitByChunks(bStr string, chunkSize int) BinaryChunks {
-	if chunkSize <= 0 {
-		return BinaryChunks{}
-	}
-
-	strLen := utf8.RuneCountInString(bStr)
-
-	chunkCount := strLen / chunkSize
-
-	if strLen%chunkSize != 0 {
-		chunkCount++
-	}
-
-	res := make(BinaryChunks, 0, chunkCount)
-
-	var buf strings.Builder
-
-	for i, ch := range bStr {
-		buf.WriteString(string(ch))
-
-		if (i+1)%chunkSize == 0 {
-			res = append(res, BinaryChunk(buf.String()))
-			buf.Reset()
-		}
-	}
-
-	if buf.Len() != 0 {
-		lastChunk := buf.String()
-		lastChunk += strings.Repeat("0", chunkSize-len(lastChunk))
-
-		res = append(res, BinaryChunk(lastChunk))
-	}
-
-	return res
-}
-
-func (bcs BinaryChunks) ToHex() HexChunks {
-	res := make(HexChunks, 0, len(bcs))
-
-	for _, chunk := range bcs {
-		res = append(res, chunk.ToHex())
-	}
-
-	return res
-}
-
-func (bc BinaryChunk) ToHex() HexChunk {
-	num, err := strconv.ParseUint(string(bc), 2, chunkSize)
-	if err != nil {
-		panic("can`t parse binaty chunk: " + err.Error())
-	}
-
-	res := strings.ToUpper(fmt.Sprintf("%x", num))
-
-	if len(res) == 1 {
-		res = "0" + res
-	}
-
-	return HexChunk(res)
-}
-
-func (hcs HexChunks) toString(sep string) string {
-	switch len(hcs) {
-	case 0:
-		return ""
-	case 1:
-		return string(hcs[0])
-	}
-
-	var buf strings.Builder
-
-	buf.WriteString(string(hcs[0]))
-
-	for _, char := range hcs[1:] {
-		buf.WriteString(sep)
-		buf.WriteString(string(char))
-	}
-
-	return buf.String()
 }
