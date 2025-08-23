@@ -19,10 +19,10 @@ var emptyError = errors.New("path to filt is not sprcified")
 var vlcCMD = &cobra.Command{
 	Use:   "vlc",
 	Short: "method packing file by Variable-length code",
-	Run:   packvlc,
+	Run:   pack,
 }
 
-func packvlc(_ *cobra.Command, args []string) {
+func pack(_ *cobra.Command, args []string) {
 	if len(args) == 0 || args[0] == "" {
 		handleError(emptyError)
 	}
