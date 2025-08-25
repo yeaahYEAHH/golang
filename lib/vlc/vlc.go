@@ -33,11 +33,10 @@ func Decode(str string) string {
 	binString := binChunks.Join()
 
 	// build binTreeSearch
+	binTreeSearch := getEncodingTable().DecodeTree()
 
-	// decode binTreeSearch
-
-	// return build decode string
-	return ""
+	// decode binTreeSearch and build decode string
+	return exportText(binTreeSearch.Decode(binString))
 }
 
 func prepareText(str string) string {
@@ -47,6 +46,27 @@ func prepareText(str string) string {
 		if unicode.IsUpper(char) {
 			buf.WriteRune('!')
 			buf.WriteRune(unicode.ToLower(char))
+		} else {
+			buf.WriteRune(char)
+		}
+	}
+
+	return buf.String()
+}
+
+func exportText(str string) string {
+	var buf strings.Builder
+	var isCapital bool
+
+	for _, char := range str {
+		if isCapital {
+			buf.WriteRune(unicode.ToUpper(char))
+			isCapital = false
+			continue
+		}
+
+		if char == '!' {
+			isCapital = true
 		} else {
 			buf.WriteRune(char)
 		}
