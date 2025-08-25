@@ -1,5 +1,7 @@
 package vlc
 
+import "strings"
+
 type DecodeTree struct {
 	Zero  *DecodeTree
 	One   *DecodeTree
@@ -24,12 +26,12 @@ func (dt *DecodeTree) Add(value rune, code string) {
 		switch char {
 		case '0':
 			if currentNode.Zero == nil {
-				currentNode = &DecodeTree{}
+				currentNode.Zero = &DecodeTree{}
 			}
 			currentNode = currentNode.Zero
 		case '1':
 			if currentNode.One == nil {
-				currentNode = &DecodeTree{}
+				currentNode.One = &DecodeTree{}
 			}
 			currentNode = currentNode.One
 
@@ -37,4 +39,32 @@ func (dt *DecodeTree) Add(value rune, code string) {
 	}
 
 	currentNode.Value = string(value)
+}
+
+func (dt *DecodeTree) Decode(str string) string {
+	var buf strings.Builder
+
+	currentNode := dt
+
+	for _, char := range str {
+		if currentNode.Value != "" {
+			buf.WriteString(currentNode.Value)
+			currentNode = dt
+		}
+
+		switch char {
+		case '0':
+			currentNode = currentNode.Zero
+		case '1':
+			currentNode = currentNode.One
+
+		}
+	}
+
+	if currentNode.Value != "" {
+		buf.WriteString(currentNode.Value)
+		currentNode = dt
+	}
+
+	return buf.String()
 }
