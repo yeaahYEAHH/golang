@@ -1,4 +1,4 @@
-package chunk_test
+package chunk
 
 import (
 	"reflect"
