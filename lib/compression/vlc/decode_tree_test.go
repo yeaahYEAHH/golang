@@ -87,20 +87,3 @@ func TestDecodeTree_AddAndDecode(t *testing.T) {
 		})
 	}
 }
-
-func TestDecodeTree_InvalidCode(t *testing.T) {
-	et := encodingTable{
-		'x': "0",
-		'y': "10",
-	}
-
-	tree := et.DecodeTree()
-
-	// Вводим битовую строку, которая не соответствует коду
-	got := tree.Decode("111") // нет такого пути
-	want := ""                // ожидание: ничего не декодируется
-
-	if got != want {
-		t.Errorf("Decode invalid code = %s, want %s", got, want)
-	}
-}

@@ -1,12 +1,75 @@
 package cmd
 
-import "github.com/spf13/cobra"
+import (
+	"archivator/lib/compression"
+	"archivator/lib/compression/vlc"
+	"errors"
+	"github.com/spf13/cobra"
+	"io"
+	"os"
+	"path/filepath"
+	"strings"
+)
 
 var packCMD = &cobra.Command{
 	Use:   "pack",
 	Short: "Pack file",
+	Run:   pack,
+}
+
+var packedExtention string = "vlc"
+
+var emptyError = errors.New("path to filt is not sprcified")
+
+func pack(cmd *cobra.Command, args []string) {
+	var encoder compression.Encoder
+
+	if len(args) == 0 || args[0] == "" {
+		handleError(emptyError)
+	}
+
+	method := cmd.Flag("method").Value.String()
+
+	switch method {
+	case "vlc":
+		encoder = vlc.NewEncoderDecoder()
+	default:
+		cmd.PrintErrf("Unsupported method: %s", method)
+	}
+
+	path := args[0]
+
+	read, err := os.Open(path)
+	if err != nil {
+		handleError(err)
+	}
+	defer read.Close()
+
+	data, err := io.ReadAll(read)
+	if err != nil {
+		handleError(err)
+	}
+
+	packed := encoder.Encode(string(data))
+
+	if err := os.WriteFile(packedFilename(path), packed, 0644); err != nil {
+		handleError(err)
+	}
+}
+
+func packedFilename(path string) string {
+	filename := filepath.Base(path)
+	ext := filepath.Ext(filename)
+
+	return strings.TrimSuffix(filename, ext) + "." + packedExtention
 }
 
 func init() {
 	rootCMD.AddCommand(packCMD)
+
+	packCMD.Flags().StringP("method", "m", "", "compression method to use: vlc")
+
+	if err := packCMD.MarkFlagRequired("method"); err != nil {
+		handleError(err)
+	}
 }

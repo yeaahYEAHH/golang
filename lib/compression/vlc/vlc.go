@@ -1,15 +1,20 @@
 package vlc
 
 import (
+	"archivator/lib/compression/vlc/chunk"
 	"strings"
 	"unicode"
-
-	"archivator/lib/vlc/chunk"
 )
+
+type EncoderDecoder struct{}
+
+func NewEncoderDecoder() EncoderDecoder {
+	return EncoderDecoder{}
+}
 
 type encodingTable map[rune]string
 
-func Encode(str string) string {
+func (_ EncoderDecoder) Encode(str string) []byte {
 	// prepare text: M -> !m
 	str = prepareText(str)
 
@@ -19,18 +24,12 @@ func Encode(str string) string {
 	// split binary by chunks (8): bits to bytes -> 10010101 10010101 10010101
 	chunks := chunk.SplitByChunks(binStr)
 
-	// bytes to hex -> '20 30 3C'
-	return chunks.ToHex().ToString()
+	return chunks.Bytes()
 }
 
-func Decode(str string) string {
-	hexChunks := chunk.NewHexChunks(str)
-
-	// hexChunks -> binChunks
-	binChunks := hexChunks.ToBinary()
-
+func (_ EncoderDecoder) Decode(encodingData []byte) string {
 	// binChunks -> binString
-	binString := binChunks.Join()
+	binString := chunk.NewBinChunks(encodingData).Join()
 
 	// build binTreeSearch
 	binTreeSearch := getEncodingTable().DecodeTree()
