@@ -15,7 +15,7 @@ type EncoderDecoder struct {
 }
 
 func NewEncoderDecoder(tblGenerator table.Generator) EncoderDecoder {
-	return EncoderDecoder{}
+	return EncoderDecoder{tblGenerator: tblGenerator}
 }
 
 func (ed EncoderDecoder) Encode(str string) []byte {
