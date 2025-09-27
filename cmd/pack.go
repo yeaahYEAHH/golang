@@ -3,6 +3,7 @@ package cmd
 import (
 	"archivator/lib/compression"
 	"archivator/lib/compression/vlc"
+	"archivator/lib/compression/vlc/table/shannon_fano"
 	"errors"
 	"github.com/spf13/cobra"
 	"io"
@@ -19,7 +20,7 @@ var packCMD = &cobra.Command{
 
 var packedExtention string = "vlc"
 
-var emptyError = errors.New("path to filt is not sprcified")
+var emptyError = errors.New("path to file is not exist")
 
 func pack(cmd *cobra.Command, args []string) {
 	var encoder compression.Encoder
@@ -32,7 +33,7 @@ func pack(cmd *cobra.Command, args []string) {
 
 	switch method {
 	case "vlc":
-		encoder = vlc.NewEncoderDecoder()
+		encoder = vlc.NewEncoderDecoder(shannon_fano.Generator{})
 	default:
 		cmd.PrintErrf("Unsupported method: %s", method)
 	}
