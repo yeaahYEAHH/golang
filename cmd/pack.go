@@ -3,6 +3,7 @@ package cmd
 import (
 	"archivator/lib/compression"
 	"archivator/lib/compression/vlc"
+	"archivator/lib/compression/vlc/table/huffman"
 	"archivator/lib/compression/vlc/table/shannon_fano"
 	"errors"
 	"github.com/spf13/cobra"
@@ -32,8 +33,11 @@ func pack(cmd *cobra.Command, args []string) {
 	method := cmd.Flag("method").Value.String()
 
 	switch method {
-	case "sf":
-		encoder = vlc.NewEncoderDecoder(shannon_fano.Generator{})
+	case "sh":
+
+		encoder = vlc.NewEncoderDecoder(shannon_fano.NewGenerator())
+	case "hf":
+		encoder = vlc.NewEncoderDecoder(huffman.NewGenerator())
 	default:
 		cmd.PrintErrf("Unsupported method: %s", method)
 	}

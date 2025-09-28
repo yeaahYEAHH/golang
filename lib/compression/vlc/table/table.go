@@ -31,7 +31,6 @@ func (et EncodingTable) decodeTree() decodeTree {
 }
 
 func (dt *decodeTree) add(value rune, code string) {
-	// code:0101(0)->'z'
 	currentNode := dt
 
 	for _, char := range code {
