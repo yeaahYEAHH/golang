@@ -18,7 +18,7 @@ var packCMD = &cobra.Command{
 	Run:   pack,
 }
 
-var packedExtention string = "vlc"
+var packedExtention string = "arch"
 
 var emptyError = errors.New("path to file is not exist")
 
@@ -32,7 +32,7 @@ func pack(cmd *cobra.Command, args []string) {
 	method := cmd.Flag("method").Value.String()
 
 	switch method {
-	case "vlc":
+	case "sf":
 		encoder = vlc.NewEncoderDecoder(shannon_fano.Generator{})
 	default:
 		cmd.PrintErrf("Unsupported method: %s", method)
@@ -68,7 +68,7 @@ func packedFilename(path string) string {
 func init() {
 	rootCMD.AddCommand(packCMD)
 
-	packCMD.Flags().StringP("method", "m", "", "compression method to use: vlc")
+	packCMD.Flags().StringP("method", "m", "", "compression method to use: sf")
 
 	if err := packCMD.MarkFlagRequired("method"); err != nil {
 		handleError(err)

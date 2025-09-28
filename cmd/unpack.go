@@ -29,7 +29,7 @@ func unpack(cmd *cobra.Command, args []string) {
 	method := cmd.Flag("method").Value.String()
 
 	switch method {
-	case "vlc":
+	case "sf":
 		decoder = vlc.NewEncoderDecoder(shannon_fano.Generator{})
 	default:
 		cmd.PrintErrf("Unsupported method: %s", method)
@@ -65,7 +65,7 @@ func unpackedFilename(path string) string {
 func init() {
 	rootCMD.AddCommand(unpackCMD)
 
-	unpackCMD.Flags().StringP("method", "m", "", "decompression method to use: vlc")
+	unpackCMD.Flags().StringP("method", "m", "", "decompression method to use: sf")
 
 	if err := unpackCMD.MarkFlagRequired("method"); err != nil {
 		handleError(err)
